@@ -1,27 +1,55 @@
-<!-- <link rel="stylesheet" href="https://raw.githubusercontent.com/DataScienceUB/tools/master/apidoc.css?"> -->
 <meta charset="utf-8" emacsmode="-*- markdown -*-">
+<link rel="stylesheet" href="apiDSBCN.css">
+<link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-<link rel="stylesheet" href="apidoc.css?"> 
+<link href='https://fonts.googleapis.com/css?family=Carrois Gothic SC' rel='stylesheet'>
+<head>
+<style>
+<style>
+    .material-icons, .icon-text {
+      vertical-align: bottom;
+    }
 
-# Ethical Data Science
+</style>
+</head>
 
 
-## What is ethics
+<center> 
+<p style="font-size:12px; font-family: 'Carrois Gothic SC'; color:blue"; line-height: 1.0rem>
+<b> Ethical Data Science Course v1.0 </b><br>
+Universitat de Barcelona, 2020 <br>
+Jordi Vitrià</p>
+</center>
 
-## Ethics of...
-https://www.youtube.com/watch?v=qVo9oApl4Rs&index=16&list=PLuD_SqLtxSdW613FYLuKjUi1B28nFBC0g
 
-+ Ethics of Data: Privacy, transparency, trust...
-+ Ethics of Algorithms: accountability, auditing, ...
-+ Ethics of Practices: consent, ...
+<i class="material-icons">home</i>
+<i class="material-icons">search</i>
+<i class="material-icons">input</i>
+<i class="material-icons">delete</i>
+<i class="material-icons">warning</i>
+<i class="material-icons" style="font-size:12px;">arrow_forward</i>
+<i class="material-icons">open_in_new</i>
+<i class="material-icons">schedule</i>
 
-$x$ és la variable...
 
-$$ f(x) = \frac{1}{2} $$
+
+
+# Desplegables
+
+<details>
+<summary><b>Exercise</b>: 
+Linear Regression with Synthetic Data Colab exercise, which explores linear regression with a toy dataset. [Colab Notebook](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</summary>
+
+[Solution](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</details>
 
 
 <details>
-<summary><b>Pregunta</b>: Which of the following model's predictions have been affected by selection bias?
+<summary><b>Question</b>: Which of the following model's predictions have been affected by selection bias?
 
 <ul>
   <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
@@ -40,13 +68,43 @@ There is no selection bias in this model; participants who provided training dat
 </details>
 
 
+# Modals
 
-<!-- 
-
-
-
+Hola que tal <a onclick="document.getElementById('id01').style.display='block'" href="#myModal">Open Modal</a> anem bé!
 
 
+<!-- Modal -->
+
+<div id="id01" class="w3-modal">
+<div class="w3-modal-content">
+<div class="w3-container">
+<span onclick="document.getElementById('id01').style.display='none'" 
+      conclick=""document.getElementById('id01').style.display='block'"" 
+      lass="w3-button w3-display-topright">&times;
+</span>
+# Hola 
+Una possible implementació de l'exponenciació, $x^y$, pot ser aquesta: 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def pow(x,y):
+  a = x
+  for i in range(2,y+1):
+    a = a * x
+  return a 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++ Seria **correcte** aquest algorisme?
++ Quina **complexitat** $O(\cdot)$ tindria (suposant que les multiplicacioms tenen $O(1)$)?
+
+
+</div>
+</div>
+</div>
+
+
+<!-- End Modal -->
 
 
 
@@ -56,9 +114,49 @@ There is no selection bias in this model; participants who provided training dat
 
 
 
+## What is ethics
+
+## Ethics of...
+
+![Explainabililty](https://www.youtube.com/watch?v=qVo9oApl4Rs&index=16&list=PLuD_SqLtxSdW613FYLuKjUi1B28nFBC0g)
 
 
++ Ethics of Data: Privacy, transparency, trust...
++ Ethics of Algorithms: accountability, auditing, ...
++ Ethics of Practices: consent, ...
 
+$x$ és la variable...
+
+$$ f(x) = \frac{1}{2} $$
+
+
+<details>
+<summary><b>Exercise</b>: 
+Linear Regression with Synthetic Data Colab exercise, which explores linear regression with a toy dataset. [Colab Notebook](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</summary>
+
+[Solution](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</details>
+
+
+<details>
+<summary><b>Question</b>: Which of the following model's predictions have been affected by selection bias?
+
+<ul>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+</ul>
+
+</summary>
+There is no selection bias in this model; participants who provided training data were a representative sampling of users and were chosen randomly. Instead, this model was affected by reporting bias. Ingestion of unhealthy foods was reported at a much lower frequency than true real-world occurrence.
+</details>
+
+<details>
+<summary><b>Pregunta</b>: Which of the following model's predictions have been affected by selection bias?
+</summary>
+There is no selection bias in this model; participants who provided training data were a representative sampling of users and were chosen randomly. Instead, this model was affected by reporting bias. Ingestion of unhealthy foods was reported at a much lower frequency than true real-world occurrence.
+</details>
 
 
 
@@ -180,7 +278,7 @@ Markdeep diagrams:
 *******************************************  Here's a text to the right of the diagram,
 * +-----------------+           .-.       *  ain't that fancy. Pretty fancy indeed, I
 * |\                |        .-+   |      *  must say! Markdeep diagrams are generally
-* | \     A-B   *---+- .--+       '--.  *  enclosed into a rectangle full made of `*`
+* | \     A-B   *---+-   .--+       '--.  *  enclosed into a rectangle full made of `*`
 * |  \              |   |     Cloud!    | *  symbols; and are "drawn" using ASCII-art
 * +---+-------------+    '-------------'  *  style, with `- | + / \ * o` etc.
 *******************************************  Suh-weet!
@@ -214,9 +312,14 @@ And other admonitions:
 The table of contents that Markdeep produces is stuffed on the right side, 
 if the browser window is wide enough. Otherwise it is hidden.
 
-# Tema 2
+<hr>
+<div id="textbox">
+  <p class="alignleft">[Previous Page](deep2.html)</p>
+  <p class="alignright">[Next Page](deep2.html)</p>
+</div>
 
-<style class="fallback">body{visibility:hidden}</style><script>markdeepOptions={tocStyle:'medium'};</script> --!>
+
+<style class="fallback">body{visibility:hidden}</style><script>markdeepOptions={tocStyle:'medium'};</script> 
 
 <!-- Markdeep: -->
 
@@ -224,7 +327,7 @@ if the browser window is wide enough. Otherwise it is hidden.
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
 
-  <script type="text/javascript">
+<script type="text/javascript">
 // Setup MathJax
       MathJax.Hub.Config({
           tex2jax: {
@@ -233,4 +336,4 @@ if the browser window is wide enough. Otherwise it is hidden.
       });
 
       MathJax.Hub.Configured();
-  </script>
+</script>

@@ -1,0 +1,359 @@
+<meta charset="utf-8" emacsmode="-*- markdown -*-">
+<link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?">
+<link href='https://fonts.googleapis.com/css?family=Carrois Gothic SC' rel='stylesheet'>
+
+<head>
+<style>
+details {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: .5em .5em 0;
+}
+
+summary {
+    font-weight: normal;
+    margin: -.5em -.5em 0;
+    padding: .5em;
+}
+
+details[open] {
+    padding: .5em;
+}
+
+details[open] summary {
+    border-bottom: 1px solid #aaa;
+    margin-bottom: .5em;
+}
+
+.alignleft {
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    padding: .5em .5em .5em;
+    float: left;
+}
+.alignright {
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    padding: .5em .5em .5em;
+    float: right;
+}
+
+
+</style>
+
+
+</head>
+
+
+<center> 
+<p style="font-size:12px; font-family: 'Carrois Gothic SC'; color:black"; line-height: 1.0rem>
+<b> Deep Learning Course v2.0 </b><br>
+Universitat de Barcelona, 2020 <br>
+Jordi Vitrià</p>
+</center>
+
+# Deep Learning
+
+## Inference
+
+Supervised learning is usually concerned with the two following inference problems:
+- **Classification**: Given $(\mathbf{x}_i, y_i) \in \mathcal{X}\times\mathcal{Y} = \mathbb{R}^p \times \{1, ..., C\}$ for $i=1, ..., N$, we want to estimate for any new $\mathbf{x}$, $$\arg \max_y P(Y=y|X=\mathbf{x}).$$
+- **Regression**: Given $(\mathbf{x}_i, y_i) \in \mathcal{X}\times\mathcal{Y} =  \mathbb{R}^p \times \mathbb{R}$, for $i=1, ..., N$, we want to estimate for any new $\mathbf{x}$, $$\mathbb{E}\left[ Y|X=\mathbf{x} \right].$$
+
+# Uncertainty
+
+!!! Note
+    Certainty is perfect knowledge that has total security from error (...). (*Wikipedia*)
+
+!!! Note
+    Uncertainty has been called *an unintelligible expression without a straightforward description*. It describes a situation involving insecurity and/or unknown information. It applies to predictions of future events, to physical measurements that are already made, or to the unknown. (*Wikipedia*)
+
+Regarding uncertainty, we can be in several situations:
+
+- **Complete certainty**. This is the case of (theoretical) macroscopic mechanics, where we can access the complete information about the input and there is no uncertainty about the output because we have a complete model.
++ **Uncertainty with risk**. This is the case of a game (f.e. dices) with uncertain output, but where we exactly know the probability distribution over outcomes. The most common cause  of this situation is that we cannot get the complete information about the input.
++ **Fully reducible uncertainty**: The case of a game with complete information about the input, with a certain  output, but where some parameters of the model cannot robustly estimated. The most common cause for this situation are lack of sufficient data. This kind of uncertainty can be reduced to the first case by gathering sufficient data.
++ **Partially reducible uncertainty**. This is the case of games where we have no full knowledge about the probability distribution over outcomes. There are different causes for this situation: the model changes over time, the model is too complex to be robustly estimated by using a feasible dataset, etc. 
+
+When working with predictive systems, measuring uncertainty is important for **dealing with the risk associated to decisions**. If we can measure risk, we can define policies related to the use of predictions.  
+
+In the framework of predictive models, uncertainty has been categorized by taking into account  its main source: **epistemic** or **aleatoric**.
+
+##  Aleatoric uncertainty
+
+**Aleatoric uncertainty** captures our uncertainty with respect to information which our data cannot explain. It can be explained away with the ability to observe all explanatory variables with increasing precision.
+
+We can actually divide aleatoric into two further sub-categories:
+
++ Data-dependant or Heteroscedastic uncertainty is aleatoric uncertainty which depends on the input data and is predicted as a model output.
++ Task-dependant or Homoscedastic uncertainty is aleatoric uncertainty which is not dependant on the input data. It is not a model output, rather it is a quantity which stays constant for all input data and varies between different tasks. 
+
+
+(Source: https://alexgkendall.com/computer_vision/bayesian_deep_learning_for_safe_ai/)
+
+## Epistemic uncertainty
+
+**Epistemic uncertainty** captures our ignorance about which model generated our collected data. Sometimes, this uncertainty can be explained away given enough data, and is often referred to as model uncertainty. Epistemic uncertainty is really important to model for small datasets where the training data is sparse.
+
+(Source: https://alexgkendall.com/computer_vision/bayesian_deep_learning_for_safe_ai/)
+
+## Probabilistic models, aleatoric uncertainty and neural networks
+
+A neural network can be used to implement probabilistic models $p(y \lvert \mathbf{x},\mathbf{w})$, where $\mathbf{w}$ are the parameters of the model.
+
+For classification, $y$ is a set of classes and $p(y \lvert \mathbf{x},\mathbf{w})$ is a discrete distribution (f.e. categorical). 
+
+For regression, $y$ is a continuous variable and $p(y \lvert \mathbf{x},\mathbf{w})$ is a continous parameter distribution (f.e. Gaussian). 
+
+Given a training dataset $\mathcal{D} = \left\{\mathbf{x}^{(i)}, y^{(i)}\right\}$ we can construct the likelihood function $p(\mathcal{D} \lvert \mathbf{w}) = \prod_i p(y^{(i)} \lvert \mathbf{x}^{(i)}, \mathbf{w})$ which is a function of parameters $\mathbf{w}$. Maximizing the likelihood function gives the maximimum likelihood estimate (MLE) of $\mathbf{w}$. 
+
+The usual optimization objective during training is the **negative log likelihood**. For a categorical distribution this is the *cross entropy* error function, for a Gaussian distribution this is proportional to the *sum of squares* error function. 
+
+Let's consider a noisy regression problem:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def f(x, sigma):
+    epsilon = np.random.randn(*x.shape) * sigma
+    return 10 * np.sin(2 * np.pi * (x)) + epsilon
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The noise gives rise to **aleatoric uncertainty**. 
+
+### Regression with a known noise model
+
+A network can now be trained with a Gaussian negative log likelihood function (`neg_log_likelihood`) as loss function assuming a **fixed standard deviation** (`noise`). 
+
+
+This is equivalent to consider the following loss function:
+
+$$
+NegLogLoss = - \sum_i \frac{(y_i - f(x_i))^2}{2 \sigma^2}+\frac{1}{2} \log \sigma^2
+$$
+
+where the model predicts a mean $f(x_i)$. 
+
+#### Regression with unknown and/or data-dependent noise model and the reparametrization trick
+
+What about an unknown and/or data-dependent noise model? In this case we can add these parameters as part of the parameters the neural network estimates from data.
+
+This is equivalent to consider the following loss function:
+
+$$
+NegLogLoss = - \sum_i \frac{(y_i - f(x_i))^2}{2 \sigma^2(x_i)}+\frac{1}{2} \log \sigma^2(x_i)
+$$
+
+where the model predicts a mean $f(x_i)$ and variance $\sigma(x_i)$. 
+
+As you can see from this equation, if the model predicts something very wrong, then it will be encouraged to attenuate the residual term, by increasing uncertainty $\sigma^2(x_i)$. However, the $\log \sigma^2(x_i)$ prevents the uncertainty term growing infinitely large. This can be thought of as learned loss attenuation.
+
+We can use stochastic neural networks, where each layer compute the parameters of some distribution, and its forward pass consists of taking a sample from that parametric distribution. However, the difficulty is that we can’t backpropagate through samples.
+
+The problem of backpropagating through stochastic nodes can be circumvented if we can re-express the sample $z \sim p_\theta(z)$, such that gradients can flow from $f(z)$ to $\theta$ without encountering stochastic nodes. For example, samples from the normal distribution $z \sim N(\mu,\sigma)$ can be re-written as $z=\mu+\sigma \cdot \epsilon$, where $\epsilon \sim N(0,1)$. This is also known as the “reparameterization trick”, and is commonly used to train variational autoencoders with Gaussian latent variables.
+
+
+## Probabilistic models, epistemic uncertainty and neural networks
+
+Multiplying the likelihood with a prior distribution $p(\mathbf{w})$ is, by Bayes theorem, proportional to the posterior distribution $p(\mathbf{w} \lvert \mathcal{D}) \propto p(\mathcal{D} \lvert \mathbf{w}) p(\mathbf{w})$. Maximizing $p(\mathcal{D} \lvert \mathbf{w}) p(\mathbf{w})$ gives the maximum a posteriori (MAP) estimate of $\mathbf{w}$. Computing the MAP estimate has a regularizing effect and can prevent overfitting. The optimization objectives here are the same as for MLE plus a regularization term coming from the log prior.
+
+Both MLE and MAP give point estimates of parameters. If we instead had a full posterior distribution over parameters we could make predictions that take weight uncertainty into account. This is covered by the posterior predictive distribution $p(y \lvert \mathbf{x},\mathcal{D}) = \int p(y \lvert \mathbf{x}, \mathbf{w}) p(\mathbf{w} \lvert \mathcal{D}) d\mathbf{w}$ in which the parameters have been marginalized out. This is equivalent to averaging predictions from an ensemble of neural networks weighted by the posterior probabilities of their parameters $\mathbf{w}$. 
+
+## Variational inference
+
+Unfortunately, an analytical solution for the posterior $p(\mathbf{w} \lvert \mathcal{D})$ in neural networks is untractable. We therefore have to approximate the true posterior with a variational distribution $q(\mathbf{w} \lvert \boldsymbol{\theta})$ of known functional form whose parameters we want to estimate. This can be done by minimizing the [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between $q(\mathbf{w} \lvert \boldsymbol{\theta})$ and the true posterior $p(\mathbf{w} \lvert \mathcal{D})$  w.r.t. to $\boldsymbol{\theta}$. It can be shown that the corresponding optimization objective or cost function can be written as
+
+$$
+\mathcal{F}(\mathcal{D},\boldsymbol{\theta}) = 
+\mathrm{KL}(q(\mathbf{w} \lvert \boldsymbol{\theta}) \mid\mid p(\mathbf{w})) -
+\mathbb{E}_{q(\mathbf{w} \lvert \boldsymbol{\theta})} \log p(\mathcal{D} \lvert \mathbf{w})
+\tag{1}
+$$
+
+This is known as the *variational free energy*. The first term is the Kullback-Leibler divergence between the variational distribution $q(\mathbf{w} \lvert \boldsymbol{\theta})$ and the prior $p(\mathbf{w})$ and is called the *complexity cost*. The second term is the expected value of the likelihood w.r.t. the variational distribution and is called the *likelihood cost*. By re-arranging the KL term, the cost function can also be written as 
+
+$$
+\mathcal{F}(\mathcal{D},\boldsymbol{\theta}) = 
+\mathbb{E}_{q(\mathbf{w} \lvert \boldsymbol{\theta})} \log q(\mathbf{w} \lvert \boldsymbol{\theta}) -
+\mathbb{E}_{q(\mathbf{w} \lvert \boldsymbol{\theta})} \log p(\mathbf{w}) -
+\mathbb{E}_{q(\mathbf{w} \lvert \boldsymbol{\theta})} \log p(\mathcal{D} \lvert \mathbf{w})
+\tag{2}
+$$
+
+We see that all three terms in equation $2$ are expectations w.r.t. the variational distribution $q(\mathbf{w} \lvert \boldsymbol{\theta})$. The cost function can therefore be approximated by drawing [Monte Carlo](https://en.wikipedia.org/wiki/Monte_Carlo_method) samples $\mathbf{w}^{(i)}$ from $q(\mathbf{w} \lvert \boldsymbol{\theta})$.
+
+$$
+\mathcal{F}(\mathcal{D},\boldsymbol{\theta}) \approx {1 \over N} \sum_{i=1}^N \left[
+\log q(\mathbf{w}^{(i)} \lvert \boldsymbol{\theta}) -
+\log p(\mathbf{w}^{(i)}) -
+\log p(\mathcal{D} \lvert \mathbf{w}^{(i)})\right]
+\tag{3}
+$$
+
+
+In the following example, we'll use a Gaussian distribution for the variational posterior, parameterized by $\boldsymbol{\theta} = (\boldsymbol{\mu}, \boldsymbol{\sigma})$ where $\boldsymbol{\mu}$ is the mean vector of the distribution and $\boldsymbol{\sigma}$ the standard deviation vector. The elements of $\boldsymbol{\sigma}$ are the elements of a diagonal covariance matrix which means that weights are assumed to be uncorrelated. Instead of parameterizing the neural network with weights $\mathbf{w}$ directly we parameterize it with $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ and therefore double the number of parameters compared to a plain neural network. 
+
+## Network training
+
+A training iteration consists of a forward-pass and and backward-pass. During a forward pass a single sample is drawn from the variational posterior distribution. It is used to evaluate the approximate cost function defined by equation $3$. The first two terms of the cost function are data-independent and can be evaluated layer-wise, the last term is data-dependent and is evaluated at the end of the forward-pass. During a backward-pass, gradients of $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ are calculated via backpropagation so that their values can be updated by an optimizer.
+
+Since a forward pass involves a stochastic sampling step we have to apply the so-called *re-parameterization trick* for backpropagation to work. The trick is to sample from a parameter-free distribution and then transform the sampled $\boldsymbol{\epsilon}$ with a deterministic function $t(\boldsymbol{\mu}, \boldsymbol{\sigma}, \boldsymbol{\epsilon})$ for which a gradient can be defined. Here, $\boldsymbol{\epsilon}$ is drawn from a standard normal distribution i.e. $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and function $t(\boldsymbol{\mu}, \boldsymbol{\sigma}, \boldsymbol{\epsilon}) = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}$ shifts the sample by mean $\boldsymbol{\mu}$ and scales it with $\boldsymbol{\sigma}$ where $\odot$ is element-wise multiplication.
+
+For numeric stability we will parameterize the network with $\boldsymbol{\rho}$ instead of $\boldsymbol{\sigma}$ directly and transform $\boldsymbol{\rho}$ with the softplus function to obtain $\boldsymbol{\sigma} = \log(1 + \exp(\boldsymbol{\rho}))$. This ensures that $\boldsymbol{\sigma}$ is always positive. As prior, a scale mixture of two Gaussians is used $p(\mathbf{w}) = \pi \mathcal{N}(\mathbf{w} \lvert 0,\sigma_1^2) + (1 - \pi) \mathcal{N}(\mathbf{w} \lvert 0,\sigma_2^2)$ where $\sigma_1$, $\sigma_2$ and $\pi$ are shared parameters. Their values are learned during training (which is in contrast to the paper where a fixed prior is used). 
+
+## Uncertainty characterization
+
+Uncertainty in predictions that arise from the uncertainty in weights is called [epistemic uncertainty](https://en.wikipedia.org/wiki/Uncertainty_quantification). This kind of uncertainty can be reduced if we get more data. Consequently,  epistemic uncertainty is higher in regions of no or little training data and lower in regions of more training data. Epistemic uncertainty is covered by the variational posterior distribution. Uncertainty coming from the inherent noise in training data is an example of [aleatoric uncertainty](https://en.wikipedia.org/wiki/Uncertainty_quantification). It cannot be reduced if we get more data. Aleatoric uncertainty is covered by the probability distribution used to define the likelihood function. 
+
+## Implementation example
+
+Variational inference of neural network parameters is now demonstrated on a simple regression problem. We therefore use a Gaussian distribution for $p(y \lvert \mathbf{x},\mathbf{w})$. The training dataset consists of 32 noisy samples `X`, `y` drawn from a sinusoidal function.
+
+
+
+
+
+
+
+
+
+
+
+## What is ethics
+
+## Ethics of...
+
+![Explainabililty](https://www.youtube.com/watch?v=qVo9oApl4Rs&index=16&list=PLuD_SqLtxSdW613FYLuKjUi1B28nFBC0g)
+
+
++ Ethics of Data: Privacy, transparency, trust...
++ Ethics of Algorithms: accountability, auditing, ...
++ Ethics of Practices: consent, ...
+
+$x$ és la variable...
+
+$$ f(x) = \frac{1}{2} $$
+
+
+<details>
+<summary><b>Exercise</b>: 
+Linear Regression with Synthetic Data Colab exercise, which explores linear regression with a toy dataset. [Colab Notebook](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</summary>
+
+[Solution](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</details>
+
+
+<details>
+<summary><b>Question</b>: Which of the following model's predictions have been affected by selection bias?
+
+<ul>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+  <li>Engineers built a model to predict the likelihood of a person developing diabetes based on their daily food intake. The model was trained on 10,000 "food diaries" collected from a randomly chosen group of people worldwide representing a variety of different age groups, ethnic backgrounds, and genders. However, when the model was deployed, it had very poor accuracy. Engineers subsequently discovered that food diary participants were reluctant to admit the true volume of unhealthy foods they ate, and were more likely to document consumption of nutritious food than less healthy snacks.</li>
+</ul>
+
+</summary>
+There is no selection bias in this model; participants who provided training data were a representative sampling of users and were chosen randomly. Instead, this model was affected by reporting bias. Ingestion of unhealthy foods was reported at a much lower frequency than true real-world occurrence.
+</details>
+
+<details>
+<summary><b>Pregunta</b>: Which of the following model's predictions have been affected by selection bias?
+</summary>
+There is no selection bias in this model; participants who provided training data were a representative sampling of users and were chosen randomly. Instead, this model was affected by reporting bias. Ingestion of unhealthy foods was reported at a much lower frequency than true real-world occurrence.
+</details>
+
+
+
+## Pregunta
+
+Una possible implementació de l'exponenciació, $x^y$, pot ser aquesta: 
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def pow(x,y):
+	a = x
+	for i in range(2,y+1):
+		a = a * x
+	return a 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++ Seria **correcte** aquest algorisme?
++ Quina **complexitat** $O(\cdot)$ tindria (suposant que les multiplicacioms tenen $O(1)$)?
+
+
+# Tema 1
+
+
+This is example page of the API doc style created
+[Aras Pranckevičius](https://github.com/aras-p) at Unity for Morgan McGuire's
+[Markdeep](https://casual-effects.com/markdeep/) and now part of the official Markdeep distro.
+It uses content that could be an imaginary documentation page. Here would be some introduction
+text.
+
+## Recursió quan les coses no van bé.
+
+
+La **recursió** $f(x)^2 = u$  consisteix en què un programa es crida a si mateix. Un programa recursiu ben fet ha de complir 2
+condicions:
+
++ ha d'haver-hi un o més casos base: són condicions de les dades que es resolen directament, sense que calgui una nova crida al programa
+
++ a cada crida recursiva ens apropem a un dels casos base: ja sigui perquè es decrementa una variable, perquè es redueix una llista...
+
+D'una manera simplificada podríem dir que els algorismes recursius segueixen el patró:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def recursiu(x):
+	if x=cas_final:
+		return VALOR
+	else:
+		return CRIDA_RECURSIVA(x reduïda)+Calculs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+!!! Error: Compte amb la recusió.
+    No feu mai més de 100 crides recursives d'un programa!
+
+    $$f(x) = 23$$
+
+
+<details>
+<summary><b>Exercise</b>: 
+Linear Regression with Synthetic Data Colab exercise, which explores linear regression with a toy dataset. [Colab Notebook](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</summary>
+
+[Solution](https://colab.research.google.com/github/google/eng-edu/blob/master/ml/cc/exercises/linear_regression_with_synthetic_data.ipynb?utm_source=mlcc&utm_campaign=colab-external&utm_medium=referral&utm_content=linear_regression_synthetic_tf2-colab&hl=en).
+</details>
+
+
+
+
+<hr>
+<div id="textbox">
+  <p class="alignleft">[Previous Page](deep2.html)</p>
+  <p class="alignright">[Next Page](deep2.html)</p>
+</div>
+
+
+
+
+<style class="fallback">body{visibility:hidden}</style><script>markdeepOptions={tocStyle:'medium'};</script> 
+
+<!-- Markdeep: -->
+
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+
+<script type="text/javascript">
+// Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+
+      MathJax.Hub.Configured();
+</script>
